@@ -1,42 +1,118 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BezierCurve : MonoBehaviour
+public static class BezierCurve
 {
-    public LineRenderer lineRenderer;
-    public int resolution;
 
-    public Transform pointA;
-    public Transform pointB;
-    public Transform bezierPoint;
-
-    public EasingType easingType;
-    List<Vector3> positions = new List<Vector3>();
-
-    private void Update()
+    public static Vector3[] GetCurve(int resolution, List<Vector3> points)
     {
-        UpdateBezier();
-    }
+        var positions = new List<Vector3>();
+        positions.Add(points[0]);
 
-    private void UpdateBezier()
-    {
-        positions.Clear();
-        positions.Add(pointA.position);
         for (int i = 1; i < resolution; i++)
         {
-            var aPoint = pointA.position + Easing.Ease(easingType, 0, 1, (float)i / resolution) * (bezierPoint.position - pointA.position);
-            var bPoint = bezierPoint.position + Easing.Ease(easingType, 0, 1, (float)i / resolution) * (pointB.position - bezierPoint.position);
-            var point = aPoint + Easing.Ease(easingType, 0, 1, (float)i / resolution) * (bPoint - aPoint);
-            positions.Add(point);
+            positions.Add(GetPointAtT((float)i / resolution, points));
         }
-        positions.Add(pointB.position);
-        lineRenderer.positionCount = positions.Count;
-        lineRenderer.SetPositions(positions.ToArray());
+
+        positions.Add(points[points.Count - 1]);
+        return positions.ToArray();
+    }
+    public static Vector3[] GetCurve(int resolution, List<Transform> points)
+    {
+        var positions = new List<Vector3>();
+        positions.Add(points[0].position);
+
+        for (int i = 1; i < resolution; i++)
+        {
+            positions.Add(GetPointAtT((float)i / resolution, points));
+        }
+
+        positions.Add(points[points.Count - 1].position);
+        return positions.ToArray();
+    }
+    public static Vector3[] GetCurve(int resolution, List<GameObject> points)
+    {
+        var positions = new List<Vector3>();
+        positions.Add(points[0].transform.position);
+
+        for (int i = 1; i < resolution; i++)
+        {
+            positions.Add(GetPointAtT((float)i / resolution, points));
+        }
+
+        positions.Add(points[points.Count - 1].transform.position);
+        return positions.ToArray();
+    }
+    private static Vector3 GetPointAtT(float t, List<Vector3> points)
+    {
+        Vector3[] pointsAtT = new Vector3[points.Count - 1];
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            pointsAtT[i] = Easing.Ease(EasingType.Linear, points[i], points[i + 1], t);
+        }
+        if (pointsAtT.Length == 1)
+            return pointsAtT[0];
+
+        Vector3[] tempPoints = pointsAtT;
+        while (pointsAtT.Length > 1)
+        {
+            pointsAtT = new Vector3[tempPoints.Length - 1];
+            for (int i = 0; i < tempPoints.Length - 1; i++)
+            {
+                pointsAtT[i] = Easing.Ease(EasingType.Linear, tempPoints[i], tempPoints[i + 1], t);
+            }
+
+            tempPoints = pointsAtT;
+        }
+        return pointsAtT[0];
+    }
+    private static Vector3 GetPointAtT(float t, List<Transform> points)
+    {
+        Vector3[] pointsAtT = new Vector3[points.Count - 1];
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            pointsAtT[i] = Easing.Ease(EasingType.Linear, points[i].position, points[i + 1].position, t);
+        }
+        if (pointsAtT.Length == 1)
+            return pointsAtT[0];
+
+        Vector3[] tempPoints = pointsAtT;
+        while (pointsAtT.Length > 1)
+        {
+            pointsAtT = new Vector3[tempPoints.Length - 1];
+            for (int i = 0; i < tempPoints.Length - 1; i++)
+            {
+                pointsAtT[i] = Easing.Ease(EasingType.Linear, tempPoints[i], tempPoints[i + 1], t);
+            }
+
+            tempPoints = pointsAtT;
+        }
+        return pointsAtT[0];
+    }
+    private static Vector3 GetPointAtT(float t, List<GameObject> points)
+    {
+        Vector3[] pointsAtT = new Vector3[points.Count - 1];
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            pointsAtT[i] = Easing.Ease(EasingType.Linear, points[i].transform.position, points[i + 1].transform.position, t);
+        }
+        if (pointsAtT.Length == 1)
+            return pointsAtT[0];
+
+        Vector3[] tempPoints = pointsAtT;
+        while (pointsAtT.Length > 1)
+        {
+            pointsAtT = new Vector3[tempPoints.Length - 1];
+            for (int i = 0; i < tempPoints.Length - 1; i++)
+            {
+                pointsAtT[i] = Easing.Ease(EasingType.Linear, tempPoints[i], tempPoints[i + 1], t);
+            }
+
+            tempPoints = pointsAtT;
+        }
+        return pointsAtT[0];
     }
 
-    private void OnValidate()
-    {
-        if (resolution < 1)
-            resolution = 1;
-    }
+
+ 
 }

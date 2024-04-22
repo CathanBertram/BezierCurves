@@ -144,3 +144,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 0
   color: {r: 1, g: 1, b: 1, a: 1}
+  meshRenderer: {fileID: 1697582378490973582}
+  bezierMaterial: {fileID: 2100000, guid: b1f7de80d944f31428ad955759298207, type: 2}
