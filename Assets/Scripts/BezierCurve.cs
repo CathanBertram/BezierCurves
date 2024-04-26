@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class BezierCurve
+public static class BezierCurveStatic
 {
 
     public static Vector3[] GetCurve(int resolution, List<Vector3> points)

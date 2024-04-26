@@ -80,7 +80,7 @@ public class MultiPointBezierCurve : MonoBehaviour
         int pointsToUse = bezierPointsPerCurve + 2;
         for (int i = 0; i < points.Count; i += pointsToUse)
         {
-            positions.AddRange(BezierCurve.GetCurve(resolution, points.Skip(i).Take(pointsToUse).Select(x => x.gameObject.transform.position).ToList()));
+            positions.AddRange(BezierCurveStatic.GetCurve(resolution, points.Skip(i).Take(pointsToUse).Select(x => x.gameObject.transform.position).ToList()));
         }
 
 

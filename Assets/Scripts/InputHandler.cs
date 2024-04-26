@@ -1,14 +1,15 @@
+using BezierCurve;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class InputHandler : MonoBehaviour
 {
-    public MultiPointBezierCurve bezierCurve;
+    public CurveHandler bezierCurve;
     public Camera mainCamera;
     private Vector2 mouseDragStart;
     private bool dragging;
-    private GameObject dragTarget = null;
+    private DisplayPoint dragTarget = null;
 
     Plane plane = new Plane(Vector3.forward, Vector3.zero);
 
@@ -30,6 +31,7 @@ public class InputHandler : MonoBehaviour
         {
             HandleRightMouse();          
         }
+        
     }
 
     private void HandleLeftMouseDown()
@@ -39,9 +41,9 @@ public class InputHandler : MonoBehaviour
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(ray, out var hit))
         {
-            if (hit.transform.gameObject.TryGetComponent<DebugPoint>(out var debugPoint))
+            if (hit.transform.gameObject.TryGetComponent<DisplayPoint>(out var debugPoint))
             {
-                dragTarget = hit.transform.gameObject;
+                dragTarget = debugPoint;
                 dragging = true;
             }
         }
@@ -55,6 +57,7 @@ public class InputHandler : MonoBehaviour
         {
             var position = ray.GetPoint(distance);
             dragTarget.transform.position = position;
+            dragTarget.OnDirty();
         }
     }
     private void HandleLeftMouseUp()
@@ -69,7 +72,7 @@ public class InputHandler : MonoBehaviour
         if(plane.Raycast(ray, out float distance))
         {
             var position = ray.GetPoint(distance);
-            bezierCurve.AddPoint(position);
+            bezierCurve.AddCurve(position);
         }
     }
 
@@ -77,8 +80,27 @@ public class InputHandler : MonoBehaviour
     {
         if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out var hit))
         {
-            if (hit.transform.gameObject.TryGetComponent<DebugPoint>(out var debugPoint))
+            if (hit.transform.gameObject.TryGetComponent<DisplayPoint>(out var debugPoint))
                 debugPoint.RemovePoint();
         }
+    }
+
+    private void HandleScroll()
+    {
+        if (Input.mouseScrollDelta.x != 0)
+            return;
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        if (!Physics.Raycast(ray, out var hit))
+            return;
+
+        if (!TryGetComponent<DisplayPoint>(out var displayPoint))
+            return;
+
+        if (!displayPoint.isBezier)
+            return;
+
+        //if(Input.mouseScrollDelta.x > 0)
+
+
     }
 }
