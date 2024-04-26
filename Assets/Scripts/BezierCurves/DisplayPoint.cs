@@ -13,6 +13,7 @@ namespace BezierCurve
             isBezier = true;
         }
 
+        public event Action<DisplayPoint, int> onScroll;
         public event Action onUpdate;
         public event Action<DisplayPoint> onRemove;
 
@@ -21,7 +22,10 @@ namespace BezierCurve
             onRemove?.Invoke(this);
             Destroy(gameObject);
         }
-
+        public void OnScroll(int val)
+        {
+            onScroll?.Invoke(this, val);
+        }
         public void OnDirty()
         {
             onUpdate?.Invoke();

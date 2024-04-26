@@ -31,7 +31,7 @@ public class InputHandler : MonoBehaviour
         {
             HandleRightMouse();          
         }
-        
+        HandleScroll();
     }
 
     private void HandleLeftMouseDown()
@@ -87,20 +87,22 @@ public class InputHandler : MonoBehaviour
 
     private void HandleScroll()
     {
-        if (Input.mouseScrollDelta.x != 0)
+        if (Input.mouseScrollDelta == Vector2.zero)
             return;
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out var hit))
             return;
 
-        if (!TryGetComponent<DisplayPoint>(out var displayPoint))
+        if (!hit.transform.gameObject.TryGetComponent<DisplayPoint>(out var displayPoint))
             return;
 
-        if (!displayPoint.isBezier)
-            return;
-
-        //if(Input.mouseScrollDelta.x > 0)
+        //if (!displayPoint.isBezier)
+        //    return;
 
 
+        if (Input.mouseScrollDelta.y > 0)
+            displayPoint.OnScroll(1);
+        else if (Input.mouseScrollDelta.y < 0)
+            displayPoint.OnScroll(-1);
     }
 }

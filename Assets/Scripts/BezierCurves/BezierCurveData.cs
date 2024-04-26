@@ -31,8 +31,10 @@ namespace BezierCurve
             AddPointsAfter(0, initialBezierPointCount);
             initialPoint.onRemove += RemovePoint;
             initialPoint.onUpdate += OnDirty;
+            initialPoint.onScroll += OnAddPoint;
             finalPoint.onRemove += RemovePoint;
             finalPoint.onUpdate += OnDirty;
+            finalPoint.onScroll += OnAddPoint;
             initialPoint.transform.parent = parentTransform;
         }
         public DisplayPoint GetEndPoint()
@@ -56,6 +58,7 @@ namespace BezierCurve
             var newPoint = CreatePoint(position);
             newPoint.onRemove += RemovePoint;
             newPoint.onUpdate += OnDirty;
+            newPoint.onScroll += OnAddPoint;
             points.AddAfter(points.Find(parentPoint), newPoint);
             newPoint.SetBezier();
             onDirty?.Invoke();
@@ -83,6 +86,7 @@ namespace BezierCurve
             var newPoint = CreatePoint(position);
             newPoint.onRemove += RemovePoint;
             newPoint.onUpdate += OnDirty;
+            newPoint.onScroll += OnAddPoint;
             points.AddLast(newPoint);
 
             if (addBezierPoints)
@@ -101,6 +105,13 @@ namespace BezierCurve
             GameObject.Destroy(point);
             onDirty?.Invoke();
 
+        }
+        private void OnAddPoint(DisplayPoint centre, int direction)
+        {
+            if (direction == -1)
+                AddPointAdjacentLeft(centre);
+            else if(direction == 1)
+                AddPointAdjacentRight(centre);
         }
         private void DeleteCurve(DisplayPoint point)
         {

@@ -11,7 +11,6 @@ public class CurveHandler : MonoBehaviour
     [SerializeField] private int initialCurvePoints = 1;
     public void AddCurve(Vector3 position)
     {
-        Debug.Log(curves.Count);
         //If there are not curves create an initial curve
         if(curves.Count == 0)
         {
