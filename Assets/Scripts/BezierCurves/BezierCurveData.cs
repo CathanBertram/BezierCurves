@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using UnityEngine;
 
@@ -11,15 +12,16 @@ namespace BezierCurve
         private LinkedList<DisplayPoint> points;
         private Transform parentTransform;
         public event Action onDirty;
-        public event Action onDelete;
+        public event Action<DisplayPoint> onDelete;
         private void OnDirty() { onDirty?.Invoke(); }
         public BezierCurveData(DisplayPoint initialPoint, Transform parentTransform)
         {
             this.parentTransform = parentTransform;
             points = new LinkedList<DisplayPoint>();
             points.AddFirst(initialPoint);
-            initialPoint.onRemove += RemovePoint;
+            initialPoint.onDeleteCurve += DeleteCurve;
             initialPoint.onUpdate += OnDirty;
+            initialPoint.onScroll += OnAddPoint;
             initialPoint.transform.parent = parentTransform;
         }
         public BezierCurveData(DisplayPoint initialPoint, DisplayPoint finalPoint, int initialBezierPointCount, Transform parentTransform)
@@ -29,10 +31,10 @@ namespace BezierCurve
             points.AddFirst(initialPoint);
             points.AddLast(finalPoint);
             AddPointsAfter(0, initialBezierPointCount);
-            initialPoint.onRemove += RemovePoint;
+            initialPoint.onDeleteCurve += DeleteCurve;
             initialPoint.onUpdate += OnDirty;
             initialPoint.onScroll += OnAddPoint;
-            finalPoint.onRemove += RemovePoint;
+            finalPoint.onDeleteCurve += DeleteCurve;
             finalPoint.onUpdate += OnDirty;
             finalPoint.onScroll += OnAddPoint;
             initialPoint.transform.parent = parentTransform;
@@ -84,7 +86,7 @@ namespace BezierCurve
         public void AddPointLast(Vector3 position, bool addBezierPoints = false, int bezierPointCount = 1)
         {
             var newPoint = CreatePoint(position);
-            newPoint.onRemove += RemovePoint;
+            newPoint.onDeleteCurve += DeleteCurve;
             newPoint.onUpdate += OnDirty;
             newPoint.onScroll += OnAddPoint;
             points.AddLast(newPoint);
@@ -95,7 +97,7 @@ namespace BezierCurve
         public void RemovePoint(DisplayPoint point)
         {
             //If point to delete is either the first or last it is necessary to delete the entire curve
-            if (point == points.First() || point == points.Last())
+            if (point == points.Last())
             { 
                 DeleteCurve(point);
                 return;
@@ -113,18 +115,41 @@ namespace BezierCurve
             else if(direction == 1)
                 AddPointAdjacentRight(centre);
         }
-        private void DeleteCurve(DisplayPoint point)
+        private void DeleteCurve(DisplayPoint deletionPoint)
+        {            
+            onDelete?.Invoke(deletionPoint);
+        }
+        public void DestroyCurve(bool destroyLast = false, bool destroyFirst = false)
         {
             //Destroy any unnecessary points
-            while(points.Count > 2)
+            while (points.Count > 2)
             {
                 var temp = points.First.Next;
-                GameObject.Destroy(temp.Value);
+                GameObject.Destroy(temp.Value.gameObject);
                 points.Remove(temp);
             }
-            GameObject.Destroy(point);
-            points.Remove(point);
-            onDelete?.Invoke();
+
+            var first = points.First.Value;
+            first.onDeleteCurve -= DeleteCurve;
+            first.onUpdate -= OnDirty;
+            first.onScroll -= OnAddPoint;
+
+            var last = points.Last.Value;
+            last.onDeleteCurve -= DeleteCurve;
+            last.onUpdate -= OnDirty;
+            last.onScroll -= OnAddPoint;
+
+            if (destroyLast)
+            {
+                GameObject.Destroy(points.Last.Value.gameObject);
+                points.Remove(points.Last.Value);
+            }
+
+            if (destroyFirst)
+            {
+                GameObject.Destroy(points.First.Value.gameObject);
+                points.Remove(points.First.Value);
+            }
         }
         public DisplayPoint CreatePoint(Vector3 position)
         {
@@ -133,7 +158,28 @@ namespace BezierCurve
             newPoint.transform.position = position;
             return newPoint;
         }
-
+        public void SetFirst(DisplayPoint point)
+        {
+            points.First.Value = point;
+            points.First.Value.onDeleteCurve += DeleteCurve;
+            points.First.Value.onUpdate += OnDirty;
+            points.First.Value.onScroll += OnAddPoint;
+        }
+        public void SetLast(DisplayPoint point)
+        {
+            points.Last.Value = point;
+            points.Last.Value.onDeleteCurve += DeleteCurve;
+            points.Last.Value.onUpdate += OnDirty;
+            points.Last.Value.onScroll += OnAddPoint;
+        }
+        public DisplayPoint GetFirstPoint()
+        {
+            return points.First.Value;
+        }
+        public DisplayPoint GetLastPoint()
+        {
+            return points.Last.Value;
+        }
         public Vector3[] GetCurve()
         {
             //Get Resolution of Curve

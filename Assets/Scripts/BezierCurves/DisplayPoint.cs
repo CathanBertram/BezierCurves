@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace BezierCurve
@@ -16,11 +17,17 @@ namespace BezierCurve
         public event Action<DisplayPoint, int> onScroll;
         public event Action onUpdate;
         public event Action<DisplayPoint> onRemove;
+        public event Action<DisplayPoint> onDeleteCurve;
 
         public void RemovePoint()
         {
-            onRemove?.Invoke(this);
-            Destroy(gameObject);
+            if (isBezier)
+            {
+                onRemove?.Invoke(this);
+                Destroy(gameObject);
+            }
+            else
+                onDeleteCurve?.Invoke(this);
         }
         public void OnScroll(int val)
         {
