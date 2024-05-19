@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 namespace SimpleBezierCurve
 {
@@ -8,8 +9,7 @@ namespace SimpleBezierCurve
         private LinkedList<CurvePoint> curvePoints;
         private int curID = 0;
         public event Action onDirty;
-        public event Action<CurvePointObject> onDelete;
-        private void OnDelete(CurvePointObject curvePointObject) { onDelete?.Invoke(curvePointObject); }
+        public event Action<CurvePoint> onDelete;
         public BezierCurve()
         {
             curvePoints = new LinkedList<CurvePoint>();
@@ -177,7 +177,13 @@ namespace SimpleBezierCurve
 
             prev.transform.position = newPosition;
         }
-        
+
+        private void OnDelete(CurvePoint curvePoint) 
+        {
+            curvePoints.Remove(curvePoint);   
+
+            onDelete?.Invoke(curvePoint); 
+        }
 
 
     }

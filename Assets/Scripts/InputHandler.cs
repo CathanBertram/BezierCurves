@@ -78,8 +78,8 @@ public class InputHandler : MonoBehaviour
     {
         if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out var hit))
         {
-            if (hit.transform.gameObject.TryGetComponent<IAltClickable>(out var debugPoint))
-                debugPoint.OnAltClick();
+            if (hit.transform.gameObject.TryGetComponent<IAltClickable>(out var altClickable))
+                altClickable.OnAltRelease();
         }
     }
 }

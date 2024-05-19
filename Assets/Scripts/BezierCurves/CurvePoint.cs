@@ -6,8 +6,7 @@ namespace SimpleBezierCurve
     public class CurvePoint
     {
         public event Action<CurvePoint, byte> onDirty;
-        public event Action<CurvePointObject> onDelete;
-        private void OnDelete(CurvePointObject curvePointObject) { onDelete?.Invoke(curvePointObject); }
+        public event Action<CurvePoint> onDelete;
         private int id;
 
         public CurvePointObject curvePoint { get; private set; }
@@ -30,6 +29,10 @@ namespace SimpleBezierCurve
             curvePoint.onDelete += OnDelete;
             curvePoint.name = $"Curve Point {id}";
             bezierPoints = new BezierPointObject[2];
+        }
+        ~CurvePoint()
+        {
+            Debug.Log($"deleted{id}");
         }
         public void SetBezierPointPosition(byte pointToSet, Vector3 position)
         {
@@ -58,6 +61,15 @@ namespace SimpleBezierCurve
                 onDirty?.Invoke(this, 2);
 
 
+        }
+        private void OnDelete(CurvePointObject curvePointObject) 
+        {
+            GameObject.DestroyImmediate(curvePoint);
+            if (bezierPoints[0] != null)
+                GameObject.DestroyImmediate(bezierPoints[0]);
+            if (bezierPoints[1] != null)
+                GameObject.DestroyImmediate(bezierPoints[1]);
+            onDelete?.Invoke(this);
         }
 
     }

@@ -29,6 +29,7 @@ namespace SimpleBezierCurve
         public virtual void OnAltRelease()
         {
             //Delete Point
+            onDelete?.Invoke(this);
         }
         public virtual void OnStartDrag(Vector3 position)
         {

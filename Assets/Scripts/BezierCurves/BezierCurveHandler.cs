@@ -25,9 +25,9 @@ namespace SimpleBezierCurve
             bezierCurveDisplay.UpdateDisplay(bezierCurve);
         }
 
-        private void OnDelete(CurvePointObject curvePointObject)
+        private void OnDelete(CurvePoint curvePoint)
         {
-
+            OnDirty();
         }
     }
 }
