@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using UnityEngine;
 
-namespace BezierCurve
+namespace ComplexBezierCurve
 {
     public class BezierCurveData
     {

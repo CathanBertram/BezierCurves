@@ -2,7 +2,7 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace BezierCurve
+namespace ComplexBezierCurve
 {
     public class DisplayPoint : MonoBehaviour
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace BezierCurve
+namespace ComplexBezierCurve
 {
     public class BezierStaticsSingleton : MonoBehaviour
     {
