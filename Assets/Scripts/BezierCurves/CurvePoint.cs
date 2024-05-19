@@ -30,10 +30,7 @@ namespace SimpleBezierCurve
             curvePoint.name = $"Curve Point {id}";
             bezierPoints = new BezierPointObject[2];
         }
-        ~CurvePoint()
-        {
-            Debug.Log($"deleted{id}");
-        }
+
         public void SetBezierPointPosition(byte pointToSet, Vector3 position)
         {
             if (pointToSet > 1) return;

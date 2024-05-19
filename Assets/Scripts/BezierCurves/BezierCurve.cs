@@ -24,6 +24,7 @@ namespace SimpleBezierCurve
             {
                 AddCurve(points, curNode, resolutionPerCurve);
                 curNode = curNode.Next;
+                points.Add(curNode.Value.CurvePointPosition);
             }
             return points.ToArray();
         }

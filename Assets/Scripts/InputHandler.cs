@@ -1,9 +1,10 @@
 using SimpleBezierCurve;
+using SimpleBezierCurve.Display;
 using UnityEngine;
 
 public class InputHandler : MonoBehaviour
 {
-    public BezierCurveHandler curveHandler;
+    public BezierCurveDisplay curveDisplay;
     public Camera mainCamera;
     private Vector2 mouseDragStart;
     private bool dragging;
@@ -69,7 +70,7 @@ public class InputHandler : MonoBehaviour
         {
             var position = ray.GetPoint(distance);
             //bezierCurve.AddCurve(position);
-            curveHandler.AddPoint(position);
+            curveDisplay.AddPoint(position);
             
         }
     }

@@ -7,10 +7,11 @@ namespace SimpleBezierCurve.Display
     public class BCDLineRenderer : BezierCurveDisplay
     {
         [SerializeField] private LineRenderer lineRenderer;
-        [SerializeField] private int resolutionPerCurve;
         public override void UpdateDisplay(BezierCurve bezierCurve)
         {
-            var curve = bezierCurve.GetCurve(resolutionPerCurve);
+            if (bezierCurve == null) return;
+
+            var curve = bezierCurve.GetCurve(resolutionPerPoint);
             lineRenderer.positionCount = curve.Count();
             lineRenderer.SetPositions(curve);
         }
