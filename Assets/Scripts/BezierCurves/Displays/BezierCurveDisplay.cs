@@ -1,9 +1,10 @@
 using UnityEngine;
+
 namespace SimpleBezierCurve.Display
 {
     public class BezierCurveDisplay : MonoBehaviour
     {
-        private BezierCurve bezierCurve;
+        [SerializeField] private BezierCurve bezierCurve;
         [SerializeField] protected int resolutionPerPoint;
 
         private void Awake()
@@ -40,7 +41,12 @@ namespace SimpleBezierCurve.Display
 
         private void OnValidate()
         {
-            UpdateDisplay(bezierCurve);
+            if (UnityEngine.Application.isPlaying)
+            {
+                bezierCurve.UpdateConnection();
+                UpdateDisplay(bezierCurve);
+
+            }
         }
     }
 }

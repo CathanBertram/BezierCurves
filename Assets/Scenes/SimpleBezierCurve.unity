@@ -8126,9 +8126,7 @@ LineRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Positions:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 1}
+  m_Positions: []
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -8196,7 +8194,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e267b6c7e753b14ea842db6b275391f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolutionPerPoint: 3
+  bezierCurve:
+    connectEnds: 1
+  resolutionPerPoint: 25
   lineRenderer: {fileID: 1103927618}
 --- !u!43 &1251331192
 Mesh:

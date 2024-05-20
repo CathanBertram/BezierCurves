@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using UnityEngine;
 namespace SimpleBezierCurve
 {
+    [System.Serializable]
     public class BezierCurve
     {
         private LinkedList<CurvePoint> curvePoints;
         private int curID = 0;
+
+        [SerializeField] private bool connectEnds;
+        bool endsConnected = false;
         public event Action onDirty;
         public event Action<CurvePoint> onDelete;
         public BezierCurve()
@@ -26,6 +29,13 @@ namespace SimpleBezierCurve
                 curNode = curNode.Next;
                 points.Add(curNode.Value.CurvePointPosition);
             }
+
+            if(connectEnds && curvePoints.Count > 2)
+            {
+                AddEndCurve(points, resolutionPerCurve);
+                points.Add(curvePoints.First.Value.CurvePointPosition);
+            }
+
             return points.ToArray();
         }
 
@@ -37,6 +47,20 @@ namespace SimpleBezierCurve
             for(int i = 0; i < resolutionPerCurve; i++)
             {
                 points.Add(GetPointAtT((float)i / resolutionPerCurve, curPoint, nextPoint));
+            }
+        }
+
+        private void AddEndCurve(List<Vector3> points, int resolutionPerCurve)
+        {
+            var firstPoint = curvePoints.First.Value;
+            var lastPoint = curvePoints.Last.Value;
+
+            if (firstPoint.bezierPoints[0] == null || lastPoint.bezierPoints[1] == null)
+                return;
+
+            for (int i = 0; i < resolutionPerCurve; i++)
+            {
+                points.Add(GetPointAtT((float)i / resolutionPerCurve, lastPoint, firstPoint));
             }
         }
         private Vector3 GetPointAtT(float t, CurvePoint curPoint, CurvePoint nextPoint)
@@ -80,6 +104,11 @@ namespace SimpleBezierCurve
                 AddPointBackwards(curvePoints.Last);
                 AddPointForwards(curvePoints.Last.Previous);
             }
+
+            if(connectEnds && curvePoints.Count > 2)
+            {
+                ConnectEnds();
+            }
         }
         //Add Bezier Point to Previous Curve Point
         private void AddPointBackwards(LinkedListNode<CurvePoint> curveNode)
@@ -96,7 +125,9 @@ namespace SimpleBezierCurve
 
             var addPosition = curVal.CurvePointPosition + (dir * (dist * 0.25f));
 
-            curVal.CreateBezierPoint(0, addPosition);
+            if (curVal.bezierPoints[0] == null)
+                curVal.CreateBezierPoint(0, addPosition);
+
             curVal.SetBezierPointPosition(0, addPosition);
 
             //OnDirtyPrevPoint(prevVal);
@@ -114,14 +145,58 @@ namespace SimpleBezierCurve
 
             var addPosition = curVal.CurvePointPosition + (dir * (dist * 0.25f));
 
-
-            curVal.CreateBezierPoint(1, addPosition);
+            if (curVal.bezierPoints[1] == null)
+                curVal.CreateBezierPoint(1, addPosition);
             curVal.SetBezierPointPosition(1, addPosition);
 
             if(curveNode.Previous != null)
                 OnDirtyPrevPoint(curveNode.Value);
         }
 
+        public void UpdateConnection()
+        {
+            if (connectEnds && !endsConnected)
+                ConnectEnds();
+            else if (!connectEnds && endsConnected)
+                DeconnectEnds();
+        }
+
+
+        private void ConnectEnds()
+        {
+            if (curvePoints.Count < 2) return;
+
+            var firstPoint = curvePoints.First.Value;
+            var lastPoint = curvePoints.Last.Value;
+
+            if (firstPoint.bezierPoints[0] == null)
+                firstPoint.CreateBezierPoint(0, firstPoint.CurvePointPosition);
+
+            if (lastPoint.bezierPoints[1] == null)
+                lastPoint.CreateBezierPoint(1, lastPoint.CurvePointPosition);
+
+            OnDirtyNextPoint(firstPoint);
+            OnDirtyPrevPoint(lastPoint);
+            endsConnected = true;
+        }
+        private void DeconnectEnds()
+        {
+            var firstPoint = curvePoints.First.Value;
+            var lastPoint = curvePoints.Last.Value;
+
+            if (firstPoint.bezierPoints[0] != null)
+            {
+                GameObject.Destroy(firstPoint.bezierPoints[0]);
+                firstPoint.bezierPoints[0] = null;
+            }
+
+            if (lastPoint.bezierPoints[1] != null)
+            {
+                GameObject.Destroy(lastPoint.bezierPoints[1]);
+                lastPoint.bezierPoints[1] = null;
+            }
+            endsConnected = false;
+        }
         private void OnDirty(CurvePoint curvePoint, byte point) 
         {
             if (point == 0)
